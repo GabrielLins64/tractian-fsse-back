@@ -5,7 +5,7 @@ export interface ICompany extends Document {
 }
 
 const companySchema: Schema = new Schema({
-  name: { type: String, required: true },
+  name: { type: String, required: true, unique: true },
 });
 
 const Company = mongoose.model<ICompany>("Company", companySchema);

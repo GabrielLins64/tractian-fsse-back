@@ -32,7 +32,7 @@ export async function findAllCompanies(): Promise<Array<ICompany>> {
 
 export async function updateCompany(
   id: string,
-  newCompany: ICompany
+  newCompany: ICompanyInput
 ): Promise<ICompany | null> {
   let query = { _id: id };
 
