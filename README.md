@@ -10,6 +10,8 @@ Backend for the Tractian Challenge &mdash; *Full-Stack Software Engineer*
 - [Requirements](#requirements)
 - [Installation](#installation)
 - [Running the project](#running-the-project)
+  - [Setup](#setup)
+  - [Running the server:](#running-the-server)
 
 ---
 
@@ -45,8 +47,10 @@ Our users, Emerson and Roberta, are maintenance managers at Industria Freios Sup
 ## Requirements
 
 - [NPM](https://www.npmjs.com/)
+- [MongoDB](https://www.mongodb.com)
 - Node.js
 - Express.js
+- Mongoose
 - TypeScript
 
 ---
@@ -65,9 +69,43 @@ git clone https://github.com/GabrielLins64/tractian-fsse-back.git
 npm install
 ```
 
+3. Downlod and install MongoDB from its [webpage](https://www.mongodb.com).
+
+---
+
 ## Running the project
 
-After [installing](#installation), type:
+### Setup
+
+1. **After [installing](#installation), start the MongoDB service:**
+
+**Linux:**
+
+```shell
+sudo systemctl start mongod
+```
+
+**MacOS:**
+
+```shell
+brew services start mongodb
+```
+
+**Windows:**
+
+Navigate into the MongoDB Bin folder and run the **mongod.exe**:
+
+```shell
+C:\mongodb\bin\mongod.exe
+```
+
+2. **Create the environment variables file:**
+
+Create a file named `.env` and copy the content of `.env.example` to it.
+
+### Running the server:
+
+Finally, launch the app with:
 
 ```shell
 npm start
