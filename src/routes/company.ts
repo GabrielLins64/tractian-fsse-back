@@ -67,7 +67,7 @@ router.get("/all", async (req: Request, res: Response) => {
   });
 });
 
-router.put("/update/:id", async (req: Request, res: Response) => {
+router.patch("/update/:id", async (req: Request, res: Response) => {
   updateCompany(req.params.id, req.body)
     .then(async (newCompany) => {
       if (!newCompany) {
