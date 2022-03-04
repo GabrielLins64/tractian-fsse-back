@@ -3,7 +3,7 @@ import { Request, Response } from "express";
 import {
   createUnit,
   deleteUnit,
-  findAllCompanies,
+  findAllUnits,
   findUnitByCompany,
   findUnitById,
   findUnitByName,
@@ -63,7 +63,7 @@ router.get("/name/:name", async (req: Request, res: Response) => {
 });
 
 router.get("/all", async (req: Request, res: Response) => {
-  findAllCompanies()
+  findAllUnits()
     .then((units) => {
       return res.status(200).send({ units });
     })
