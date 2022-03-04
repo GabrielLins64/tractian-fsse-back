@@ -29,7 +29,7 @@ export async function findUnitByName(
     });
 }
 
-export async function findAllCompanies(): Promise<Array<IUnit>> {
+export async function findAllUnits(): Promise<Array<IUnit>> {
   return Unit.find({});
 }
 
