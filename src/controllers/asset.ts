@@ -53,7 +53,7 @@ export async function updateAsset(
     });
   }
 
-  let query = {_id: id}
+  let query = { _id: id };
   return Asset.findOneAndUpdate(query, newAsset, { new: true })
     .then((data: IAsset | null) => {
       return data;
@@ -92,6 +92,16 @@ export async function deleteAsset(id: string): Promise<IAsset | null> {
       let imageId = data?.image;
       if (imageId) await Image.findByIdAndDelete(imageId);
 
+      return data;
+    })
+    .catch((error: Error) => {
+      throw error;
+    });
+}
+
+export async function getImage(id: string): Promise<IImage | null> {
+  return Image.findById(id)
+    .then(async (data: IImage | null) => {
       return data;
     })
     .catch((error: Error) => {
