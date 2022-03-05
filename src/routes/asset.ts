@@ -7,6 +7,7 @@ import {
   findAssetByUnit,
   findAssetById,
   updateAsset,
+  getImage,
 } from "../controllers/asset";
 import { convertFile, upload } from "../middlewares/storage";
 
@@ -100,6 +101,23 @@ router.delete("/delete/:id", async (req: Request, res: Response) => {
       }
 
       return res.status(200).send({ asset });
+    })
+    .catch((err: Error) => {
+      return res.status(500).send(err.message);
+    });
+});
+
+router.get("/image/:imageId", async (req: Request, res: Response) => {
+  getImage(req.params.imageId)
+    .then((image) => {
+      if (!image) {
+        return res.status(204).send();
+      }
+
+      res.writeHead(200, {
+        'Content-Type': image.contentType
+      })
+      return res.end(image.data);
     })
     .catch((err: Error) => {
       return res.status(500).send(err.message);
