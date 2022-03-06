@@ -7,7 +7,7 @@ export interface ICompany extends Document {
 const companySchema: Schema = new Schema({
   name: {
     type: String,
-    required: [true, "Please specify the name."],
+    required: [true, "Please specify the name"],
     unique: true
   },
 });

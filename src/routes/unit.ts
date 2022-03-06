@@ -1,113 +1,28 @@
 import express from "express";
-import { Request, Response } from "express";
 import {
   createUnit,
   deleteUnit,
   findAllUnits,
-  findUnitByCompany,
   findUnitById,
-  findUnitByName,
+  findUnits,
   updateUnit,
 } from "../controllers/unit";
 
 const router = express.Router();
 
-router.post("/create", async (req: Request, res: Response) => {
-  let unit = await findUnitByName(req.body.name);
+router
+  .route("/")
+  .get(findAllUnits)
+  .post(createUnit);
 
-  if (unit) {
-    return res.status(400).send({
-      error: `A unit with the name "${req.body.name}" already exists!`,
-    });
-  }
+router
+  .route("/:id")
+  .get(findUnitById)
+  .patch(updateUnit)
+  .delete(deleteUnit);
 
-  createUnit({
-    name: req.body.name,
-    address: req.body.address || "",
-    company: req.body.company,
-  })
-    .then((unit) => {
-      return res.status(201).send({ unit });
-    })
-    .catch((err: Error) => {
-      return res.status(500).send(err.message);
-    });
-});
-
-router.get("/id/:id", async (req: Request, res: Response) => {
-  findUnitById(req.params.id)
-    .then((unit) => {
-      if (!unit) {
-        return res.status(204).send();
-      }
-
-      return res.status(200).send({ unit });
-    })
-    .catch((err: Error) => {
-      return res.status(500).send(err.message);
-    });
-});
-
-router.get("/name/:name", async (req: Request, res: Response) => {
-  findUnitByName(req.params.name)
-    .then((unit) => {
-      if (!unit) {
-        return res.status(204).send();
-      }
-
-      return res.send({ unit });
-    })
-    .catch((err: Error) => {
-      return res.status(500).send(err.message);
-    });
-});
-
-router.get("/all", async (req: Request, res: Response) => {
-  findAllUnits()
-    .then((units) => {
-      return res.status(200).send({ units });
-    })
-    .catch((err: Error) => {
-      return res.status(500).send(err.message);
-    });
-});
-
-router.get("/company/:companyId", async (req: Request, res: Response) => {
-  findUnitByCompany(req.params.companyId)
-    .then((units) => {
-      return res.status(200).send({units});
-    })
-    .catch((err: Error) => {
-      return res.status(500).send(err.message);
-    })
-});
-
-router.patch("/update/:id", async (req: Request, res: Response) => {
-  updateUnit(req.params.id, req.body)
-    .then(async (newUnit) => {
-      if (!newUnit) {
-        return res.status(204).send();
-      }
-
-      return res.status(200).send({ newUnit });
-    })
-    .catch((err: Error) => {
-      return res.status(500).send(err.message);
-    });
-});
-
-router.delete("/delete/:id", async (req: Request, res: Response) => {
-  deleteUnit(req.params.id)
-    .then((unit) => {
-      if (!unit) {
-        return res.status(204).send();
-      }
-
-      return res.status(200).send({ unit });
-    })
-    .catch((err: Error) => {
-      return res.status(500).send(err.message);
-    });
-});
+router
+  .route("/find/:field/:value")
+  .get(findUnits);
 
 export { router as unitRouter };
