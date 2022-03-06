@@ -8,9 +8,19 @@ export interface IUnit extends Document {
 }
 
 const unitSchema: Schema = new Schema({
-  name: { type: String, required: true, unique: true },
-  address: { type: String, required: false },
-  company: { type: Schema.Types.ObjectId, required: true },
+  name: {
+    type: String,
+    required: [true, "Please specify the name"],
+    unique: [true, "A unit with this name already exists"],
+  },
+  address: {
+    type: String,
+    required: false,
+  },
+  company: {
+    type: Schema.Types.ObjectId,
+    required: [true, "Please specify the unit's company"],
+  },
 });
 
 const Unit = mongoose.model<IUnit>("Unit", unitSchema);

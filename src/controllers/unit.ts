@@ -1,73 +1,89 @@
-import { ICompany } from "../models/company";
-import Unit, { IUnit } from "../models/unit";
+import { Request, Response } from "express";
+import Unit from "../models/unit";
 
-interface IUnitInput {
-  name: IUnit["name"];
-  address?: IUnit["address"];
-  company: ICompany["_id"];
-}
+export async function findUnitById(req: Request, res: Response) {
+  Unit.findById(req.params.id)
+    .then((unit) => {
+      if (!unit) {
+        return res.status(204).send();
+      }
 
-export async function findUnitById(id: string): Promise<IUnit | null> {
-  return Unit.findById(id)
-    .then((data) => {
-      return data;
+      return res.status(200).send(unit);
     })
-    .catch((error: Error) => {
-      throw error;
+    .catch((err: Error) => {
+      return res.status(500).send({ error: err.message });
     });
 }
 
-export async function findUnitByName(
-  name: string
-): Promise<IUnit | null> {
-  return Unit.findOne({ name: name })
-    .then((data) => {
-      return data;
+export async function findAllUnits(req: Request, res: Response) {
+  Unit.find({})
+    .then((units) => {
+      return res.status(200).send(units);
     })
-    .catch((error: Error) => {
-      throw error;
+    .catch((err: Error) => {
+      return res.status(500).send({ error: err.message });
     });
 }
 
-export async function findAllUnits(): Promise<Array<IUnit>> {
-  return Unit.find({});
-}
+export async function updateUnit(req: Request, res: Response) {
+  let query = { _id: req.params.id };
 
-export async function findUnitByCompany(companyId: string): Promise<Array<IUnit>> {
-  return Unit.find({company: companyId});
-}
+  return Unit.findOneAndUpdate(query, req.body, { new: true })
+    .then(async (newUnit) => {
+      if (!newUnit) {
+        return res.status(204).send();
+      }
 
-export async function updateUnit(
-  id: string,
-  newUnit: IUnitInput
-): Promise<IUnit | null> {
-  let query = { _id: id };
-
-  return Unit.findOneAndUpdate(query, newUnit, { new: true })
-    .then((data: IUnit | null) => {
-      return data;
+      return res.status(200).send(newUnit);
     })
-    .catch((error: Error) => {
-      throw error;
+    .catch((err: Error) => {
+      return res.status(500).send({ error: err.message });
     });
 }
 
-export async function createUnit(unit: IUnitInput): Promise<IUnit> {
-  return Unit.create(unit)
-    .then((data: IUnit) => {
-      return data;
+export async function createUnit(req: Request, res: Response) {
+  let unit = await Unit.findOne({ name: req.body.name });
+
+  if (unit) {
+    return res.status(400).send({
+      error: `A unit with the name "${req.body.name}" already exists!`,
+    });
+  }
+
+  Unit.create(req.body)
+    .then((unit) => {
+      return res.status(201).send(unit);
     })
-    .catch((error: Error) => {
-      throw error;
+    .catch((err: Error) => {
+      return res.status(500).send({ error: err.message });
     });
 }
 
-export async function deleteUnit(id: string): Promise<IUnit | null> {
-  return Unit.findByIdAndDelete(id)
-    .then((data: IUnit | null) => {
-      return data;
+export async function deleteUnit(req: Request, res: Response) {
+  Unit.findByIdAndDelete(req.params.id)
+    .then((unit) => {
+      if (!unit) {
+        return res.status(204).send();
+      }
+
+      return res.status(200).send(unit);
     })
-    .catch((error: Error) => {
-      throw error;
+    .catch((err: Error) => {
+      return res.status(500).send({ error: err.message });
+    });
+}
+
+export async function findUnits(req: Request, res: Response) {
+  Unit.find()
+    .where(req.params.field, req.params.value)
+    .then((units: Array<Object>) => {
+      if (units.length == 0) {
+        return res.status(204).send();
+      }
+
+      return res.send(units);
+    })
+    .catch((err: Error) => {
+      return res.status(500).send({ error: err.message });
     });
 }
