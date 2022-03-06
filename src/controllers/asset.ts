@@ -1,110 +1,132 @@
+import * as fs from "fs";
+import { Request, Response } from "express";
 import Asset, { IAsset } from "../models/asset";
 import Image, { IImage } from "../models/image";
-import { IUnit } from "../models/unit";
 
-interface IAssetInput {
-  name: IAsset["name"];
-  description: IAsset["description"];
-  model: IAsset["model"];
-  owner: IAsset["owner"];
-  status: IAsset["status"];
-  health: IAsset["health"];
-  unit: IUnit["_id"];
-  image?: IImageInput;
+export function convertFile(filePath: string, mimetype: string) {
+  let image = fs.readFileSync(filePath);
+  let encodedImage = image.toString("base64");
+  let finalImage = {
+    contentType: mimetype,
+    data: Buffer.from(encodedImage, "base64"),
+  };
+  fs.unlink(filePath, (err) => {});
+
+  return finalImage;
 }
 
-interface IImageInput {
-  contentType: IImage["contentType"];
-  data: IImage["data"];
-}
-
-export async function findAssetById(id: string): Promise<IAsset | null> {
-  return Asset.findById(id)
+export async function findAssetById(req: Request, res: Response) {
+  Asset.findById(req.params.id)
     .then((data) => {
-      return data;
+      if (!data) return res.status(204).send();
+
+      return res.status(200).send(data);
     })
-    .catch((error: Error) => {
-      throw error;
+    .catch((err: Error) => {
+      return res.status(500).send({ error: err.message });
     });
 }
 
-export async function findAllAssets(): Promise<Array<IAsset>> {
-  return Asset.find({});
+export async function findAllAssets(req: Request, res: Response) {
+  Asset.find({})
+    .then((assets) => {
+      return res.status(200).send({ assets });
+    })
+    .catch((err: Error) => {
+      return res.status(500).send({ error: err.message });
+    });
 }
 
-export async function findAssetByUnit(unitId: string): Promise<Array<IAsset>> {
-  return Asset.find({ unit: unitId });
+export async function findAssets(req: Request, res: Response) {
+  Asset.find()
+    .where(req.params.field, req.params.value)
+    .then((assets: Array<Object>) => {
+      if (assets.length == 0) {
+        return res.status(204).send();
+      }
+
+      return res.send(assets);
+    })
+    .catch((err: Error) => {
+      return res.status(500).send({ error: err.message });
+    });
 }
 
-export async function updateAsset(
-  id: string,
-  assetInput: IAssetInput,
-  image: IImageInput | null
-): Promise<IAsset | null> {
-  let oldAsset = await Asset.findById(id);
-  if (!oldAsset) return null;
+export async function updateAsset(req: Request, res: Response) {
+  let finalImage = null;
+  let oldAsset = await Asset.findById(req.params.id);
+  let newAsset = { ...JSON.parse(req.body.asset) };
 
-  let newAsset = { ...assetInput };
-
-  if (image) {
+  if (!oldAsset) {
+    return res.status(204).send();
+  }
+  if (req.file) {
+    finalImage = convertFile(req.file.path, req.file.mimetype);
     await Image.findByIdAndDelete(oldAsset.image);
-    await Image.create(image).then((data: IImage) => {
+    await Image.create(finalImage).then((data: IImage) => {
       newAsset.image = data._id;
     });
   }
 
-  let query = { _id: id };
-  return Asset.findOneAndUpdate(query, newAsset, { new: true })
+  let query = { _id: req.params.id };
+  Asset.findOneAndUpdate(query, newAsset, { new: true })
     .then((data: IAsset | null) => {
-      return data;
+      return res.status(200).send(data);
     })
-    .catch((error: Error) => {
-      throw error;
+    .catch((err: Error) => {
+      return res.status(500).send({ error: err.message });
     });
 }
 
-export async function createAsset(
-  asset: IAssetInput,
-  image: IImageInput
-): Promise<IAsset> {
-  return Image.create(image)
+export async function createAsset(req: Request, res: Response) {
+  if (!req.file) {
+    return res.status(400).send("Please input an image");
+  }
+  let finalImage = convertFile(req.file.path, req.file.mimetype);
+  let newAsset = { ...JSON.parse(req.body.asset) };
+
+  Image.create(finalImage)
     .then(async (data: IImage) => {
-      let newAsset = new Asset({ ...asset });
       newAsset.image = data._id;
 
-      return Asset.create(newAsset)
-        .then((data: IAsset) => {
-          return data;
-        })
-        .catch(async (error: Error) => {
-          await Image.findByIdAndDelete(newAsset.image);
-          throw error;
-        });
+      Asset.create(newAsset).then((asset) => {
+        return res.status(201).send(asset);
+      });
     })
-    .catch((error: Error) => {
-      throw error;
+    .catch(async (err: Error) => {
+      await Image.findByIdAndDelete(newAsset.image);
+      return res.status(500).send({ error: err.message });
     });
 }
 
-export async function deleteAsset(id: string): Promise<IAsset | null> {
-  return Asset.findByIdAndDelete(id)
+export async function deleteAsset(req: Request, res: Response) {
+  Asset.findByIdAndDelete(req.params.id)
     .then(async (data: IAsset | null) => {
-      let imageId = data?.image;
-      if (imageId) await Image.findByIdAndDelete(imageId);
+      if (!data) {
+        return res.status(204).send();
+      }
 
-      return data;
+      let imageId = data.image;
+      await Image.findByIdAndDelete(imageId);
+
+      return res.status(200).send(data);
     })
-    .catch((error: Error) => {
-      throw error;
+    .catch((err: Error) => {
+      return { error: err.message };
     });
 }
 
-export async function getImage(id: string): Promise<IImage | null> {
-  return Image.findById(id)
+export async function getImage(req: Request, res: Response) {
+  Image.findById(req.params.imageId)
     .then(async (data: IImage | null) => {
-      return data;
+      if (!data) return res.status(204);
+
+      res.writeHead(200, {
+        "Content-Type": data.contentType,
+      });
+      return res.end(data.data);
     })
-    .catch((error: Error) => {
-      throw error;
+    .catch((err: Error) => {
+      return res.status(500).send({ error: err.message });
     });
 }

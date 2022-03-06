@@ -1,12 +1,5 @@
-import { ICompany } from "../models/company";
 import { Request, Response } from "express";
-import Unit, { IUnit } from "../models/unit";
-
-interface IUnitInput {
-  name: IUnit["name"];
-  address?: IUnit["address"];
-  company: ICompany["_id"];
-}
+import Unit from "../models/unit";
 
 export async function findUnitById(req: Request, res: Response) {
   Unit.findById(req.params.id)

@@ -1,127 +1,29 @@
 import express from "express";
-import { Request, Response } from "express";
 import {
   createAsset,
   deleteAsset,
   findAllAssets,
-  findAssetByUnit,
   findAssetById,
   updateAsset,
   getImage,
+  findAssets,
 } from "../controllers/asset";
-import { convertFile, upload } from "../middlewares/storage";
+import { uploadImage } from "../middlewares/storage";
 
 const router = express.Router();
 
-router.post(
-  "/create",
-  upload.single("image"),
-  async (req: Request, res: Response) => {
-    if (!req.file) {
-      return res.status(400).send("Please input an image");
-    }
-    let finalImage = convertFile(req.file.path, req.file.mimetype);
+router
+  .route("/")
+  .get(findAllAssets)
+  .post(uploadImage, createAsset);
 
-    try {
-      createAsset(JSON.parse(req.body.asset), finalImage)
-        .then((asset) => {
-          return res.status(201).send({ asset });
-        })
-        .catch((err: Error) => {
-          return res.status(500).send(err.message);
-        });
-    } catch (err) {
-      return res.status(500).send(err);
-    }
-  }
-);
+router
+  .route("/:id")
+  .get(findAssetById)
+  .patch(uploadImage, updateAsset)
+  .delete(deleteAsset);
 
-router.get("/id/:id", async (req: Request, res: Response) => {
-  findAssetById(req.params.id)
-    .then((asset) => {
-      if (!asset) {
-        return res.status(204).send();
-      }
-
-      return res.status(200).send({ asset });
-    })
-    .catch((err: Error) => {
-      return res.status(500).send(err.message);
-    });
-});
-
-router.get("/all", async (req: Request, res: Response) => {
-  findAllAssets()
-    .then((assets) => {
-      return res.status(200).send({ assets });
-    })
-    .catch((err: Error) => {
-      return res.status(500).send(err.message);
-    });
-});
-
-router.get("/unit/:unitId", async (req: Request, res: Response) => {
-  findAssetByUnit(req.params.unitId)
-    .then((assets) => {
-      return res.status(200).send({ assets });
-    })
-    .catch((err: Error) => {
-      return res.status(500).send(err.message);
-    });
-});
-
-router.patch(
-  "/update/:id",
-  upload.single("image"),
-  async (req: Request, res: Response) => {
-    let finalImage = null;
-    if (req.file) {
-      finalImage = convertFile(req.file.path, req.file.mimetype);
-    }
-
-    updateAsset(req.params.id, JSON.parse(req.body.asset), finalImage)
-      .then(async (newAsset) => {
-        if (!newAsset) {
-          return res.status(204).send();
-        }
-
-        return res.status(200).send({ newAsset });
-      })
-      .catch((err: Error) => {
-        return res.status(500).send(err.message);
-      });
-  }
-);
-
-router.delete("/delete/:id", async (req: Request, res: Response) => {
-  deleteAsset(req.params.id)
-    .then((asset) => {
-      if (!asset) {
-        return res.status(204).send();
-      }
-
-      return res.status(200).send({ asset });
-    })
-    .catch((err: Error) => {
-      return res.status(500).send(err.message);
-    });
-});
-
-router.get("/image/:imageId", async (req: Request, res: Response) => {
-  getImage(req.params.imageId)
-    .then((image) => {
-      if (!image) {
-        return res.status(204).send();
-      }
-
-      res.writeHead(200, {
-        'Content-Type': image.contentType
-      })
-      return res.end(image.data);
-    })
-    .catch((err: Error) => {
-      return res.status(500).send(err.message);
-    });
-});
+router.get("/image/:imageId", getImage);
+router.get("/find/:field/:value", findAssets);
 
 export { router as assetRouter };

@@ -16,14 +16,40 @@ export interface IAsset extends Document {
 }
 
 const assetSchema: Schema = new Schema({
-  image: { type: Schema.Types.ObjectId, required: true },
-  name: { type: String, required: true },
-  description: { type: String, required: true },
-  model: { type: String, required: true },
-  owner: { type: String, required: true },
-  status: { type: String, required: true },
-  health: { type: Number, required: true, min: 0, max: 1 },
-  unit: { type: Schema.Types.ObjectId, required: true },
+  image: {
+    type: Schema.Types.ObjectId,
+    required: [true, "Please specify the asset's image"],
+  },
+  name: {
+    type: String,
+    required: [true, "Please specify the asset's name"],
+  },
+  description: {
+    type: String,
+    required: [true, "Please specify the asset's description"],
+  },
+  model: {
+    type: String,
+    required: [true, "Please specify the asset's model"],
+  },
+  owner: {
+    type: String,
+    required: [true, "Please specify the asset's owner"],
+  },
+  status: {
+    type: String,
+    required: [true, "Please specify the asset's status"],
+  },
+  health: {
+    type: Number,
+    required: [true, "Please specify the asset's health"],
+    min: 0,
+    max: 1,
+  },
+  unit: {
+    type: Schema.Types.ObjectId,
+    required: [true, "Please specify the asset's unit"],
+  },
 });
 
 const Asset = mongoose.model<IAsset>("Asset", assetSchema);

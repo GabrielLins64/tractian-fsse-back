@@ -1,10 +1,6 @@
 import { Request, Response } from "express";
 import Company, { ICompany } from "../models/company";
 
-interface ICompanyInput {
-  name: ICompany["name"];
-}
-
 export async function findCompanyById(req: Request, res: Response) {
   Company.findById(req.params.id)
     .then((company) => {

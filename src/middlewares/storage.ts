@@ -1,4 +1,3 @@
-import * as fs from "fs";
 import multer from "multer";
 
 var storage = multer.diskStorage({
@@ -13,16 +12,4 @@ var storage = multer.diskStorage({
   },
 });
 
-export function convertFile(filePath: string, mimetype: string) {
-  let image = fs.readFileSync(filePath);
-  let encodedImage = image.toString("base64");
-  let finalImage = {
-    contentType: mimetype,
-    data: Buffer.from(encodedImage, "base64"),
-  };
-  fs.unlink(filePath, (err) => {});
-
-  return finalImage;
-}
-
-export var upload = multer({ storage: storage });
+export var uploadImage = multer({ storage: storage }).single("image");
