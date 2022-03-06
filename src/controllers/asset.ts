@@ -30,7 +30,7 @@ export async function findAssetById(req: Request, res: Response) {
 export async function findAllAssets(req: Request, res: Response) {
   Asset.find({})
     .then((assets) => {
-      return res.status(200).send({ assets });
+      return res.status(200).send(assets);
     })
     .catch((err: Error) => {
       return res.status(500).send({ error: err.message });
