@@ -1,28 +1,19 @@
 import express from "express";
-import {
-  createCompany,
-  deleteCompany,
-  findAllCompanies,
-  findCompanyById,
-  findCompanies,
-  updateCompany,
-} from "../controllers/company";
+import controller from "../controllers/company";
 
 const router = express.Router();
 
 router
   .route("/")
-  .get(findAllCompanies)
-  .post(createCompany);
+  .get(controller.findAllCompanies)
+  .post(controller.createCompany);
 
 router
   .route("/:id")
-  .get(findCompanyById)
-  .patch(updateCompany)
-  .delete(deleteCompany);
+  .get(controller.findCompanyById)
+  .patch(controller.updateCompany)
+  .delete(controller.deleteCompany);
 
-router
-  .route("/find/:field/:value")
-  .get(findCompanies);
+router.get("/find/:field/:value", controller.findCompanies);
 
 export { router as companyRouter };

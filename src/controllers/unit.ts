@@ -1,7 +1,7 @@
 import { Request, Response } from "express";
 import Unit from "../models/unit";
 
-export async function findUnitById(req: Request, res: Response) {
+async function findUnitById(req: Request, res: Response) {
   Unit.findById(req.params.id)
     .then((unit) => {
       if (!unit) {
@@ -15,7 +15,7 @@ export async function findUnitById(req: Request, res: Response) {
     });
 }
 
-export async function findAllUnits(req: Request, res: Response) {
+async function findAllUnits(req: Request, res: Response) {
   Unit.find({})
     .then((units) => {
       return res.status(200).send(units);
@@ -25,7 +25,7 @@ export async function findAllUnits(req: Request, res: Response) {
     });
 }
 
-export async function updateUnit(req: Request, res: Response) {
+async function updateUnit(req: Request, res: Response) {
   let query = { _id: req.params.id };
 
   return Unit.findOneAndUpdate(query, req.body, { new: true })
@@ -41,7 +41,7 @@ export async function updateUnit(req: Request, res: Response) {
     });
 }
 
-export async function createUnit(req: Request, res: Response) {
+async function createUnit(req: Request, res: Response) {
   let unit = await Unit.findOne({ name: req.body.name });
 
   if (unit) {
@@ -59,7 +59,7 @@ export async function createUnit(req: Request, res: Response) {
     });
 }
 
-export async function deleteUnit(req: Request, res: Response) {
+async function deleteUnit(req: Request, res: Response) {
   Unit.findByIdAndDelete(req.params.id)
     .then((unit) => {
       if (!unit) {
@@ -73,7 +73,7 @@ export async function deleteUnit(req: Request, res: Response) {
     });
 }
 
-export async function findUnits(req: Request, res: Response) {
+async function findUnits(req: Request, res: Response) {
   Unit.find()
     .where(req.params.field, req.params.value)
     .then((units: Array<Object>) => {
@@ -87,3 +87,12 @@ export async function findUnits(req: Request, res: Response) {
       return res.status(500).send({ error: err.message });
     });
 }
+
+export default {
+  findUnitById,
+  findAllUnits,
+  findUnits,
+  deleteUnit,
+  createUnit,
+  updateUnit,
+};
