@@ -16,4 +16,8 @@ router
   .patch(validateJWT, controller.updateUser)
   .delete(validateJWT, controller.deleteUser);
 
+router
+  .route("/:field/:value")
+  .get(controller.findUsers);
+
 export { router as userRouter };

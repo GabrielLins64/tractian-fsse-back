@@ -106,6 +106,22 @@ function findUser(req: Request, res: Response, next: NextFunction) {
     });
 }
 
+function findUsers(req: Request, res: Response) {
+  User.find()
+    .where(req.params.field, req.params.value)
+    .select("-password")
+    .then((users: Array<Object>) => {
+      if (users.length == 0) {
+        return res.status(204).send();
+      }
+
+      return res.send(users);
+    })
+    .catch((err: Error) => {
+      return res.status(500).send({ error: err.message });
+    });
+}
+
 function updateUser(req: Request, res: Response, next: NextFunction) {
   let query = { _id: req.params.id };
 
@@ -151,4 +167,5 @@ export default {
   logout,
   deleteUser,
   updateUser,
+  findUsers,
 };
