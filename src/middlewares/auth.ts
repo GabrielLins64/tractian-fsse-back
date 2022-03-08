@@ -60,7 +60,10 @@ function createJWT(req: Request, res: Response, next: NextFunction) {
         if (error) {
           throw error;
         } else if (token) {
-          res.status(200).send({ accessToken: token });
+          res.status(200).send({
+            accessToken: token,
+            userId: user._id,
+          });
         }
       }
     );

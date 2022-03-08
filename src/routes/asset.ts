@@ -1,21 +1,22 @@
 import express from "express";
 import controller from "../controllers/asset";
+import auth from "../middlewares/auth";
 import { uploadImage } from "../middlewares/storage";
 
 const router = express.Router();
 
 router
   .route("/")
-  .get(controller.findAllAssets)
-  .post(uploadImage, controller.createAsset);
+  .get(auth.validateJWT, controller.findAllAssets)
+  .post(auth.validateJWT, uploadImage, controller.createAsset);
 
 router
   .route("/:id")
-  .get(controller.findAssetById)
-  .patch(uploadImage, controller.updateAsset)
-  .delete(controller.deleteAsset);
+  .get(auth.validateJWT, controller.findAssetById)
+  .patch(auth.validateJWT, uploadImage, controller.updateAsset)
+  .delete(auth.validateJWT, controller.deleteAsset);
 
-router.get("/image/:imageId", controller.getImage);
-router.get("/find/:field/:value", controller.findAssets);
+router.get("/image/:imageId", auth.validateJWT, controller.getImage);
+router.get("/find/:field/:value", auth.validateJWT, controller.findAssets);
 
 export { router as assetRouter };
