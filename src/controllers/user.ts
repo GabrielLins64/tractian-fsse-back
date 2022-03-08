@@ -106,6 +106,27 @@ function findUser(req: Request, res: Response, next: NextFunction) {
     });
 }
 
+function updateUser(req: Request, res: Response, next: NextFunction) {
+  let query = { _id: req.params.id };
+
+  if (req.headers.userid != req.params.id) {
+    return res.status(403).send("Forbidden");
+  }
+
+  User.findOneAndUpdate(query, req.body, { new: true })
+    .select("-password")
+    .then(async (newUser) => {
+      if (!newUser) {
+        return res.status(204).send();
+      }
+
+      return res.status(200).send(newUser);
+    })
+    .catch((err: Error) => {
+      return res.status(500).send({ error: err.message });
+    });
+}
+
 function deleteUser(req: Request, res: Response, next: NextFunction) {
   User.findByIdAndDelete(req.params.id)
     .select("-password")
@@ -129,4 +150,5 @@ export default {
   findUser,
   logout,
   deleteUser,
+  updateUser,
 };
