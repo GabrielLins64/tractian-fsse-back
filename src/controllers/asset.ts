@@ -3,7 +3,7 @@ import { Request, Response } from "express";
 import Asset, { IAsset } from "../models/asset";
 import Image, { IImage } from "../models/image";
 
-export function convertFile(filePath: string, mimetype: string) {
+function convertFile(filePath: string, mimetype: string) {
   let image = fs.readFileSync(filePath);
   let encodedImage = image.toString("base64");
   let finalImage = {
@@ -15,7 +15,7 @@ export function convertFile(filePath: string, mimetype: string) {
   return finalImage;
 }
 
-export async function findAssetById(req: Request, res: Response) {
+async function findAssetById(req: Request, res: Response) {
   Asset.findById(req.params.id)
     .then((data) => {
       if (!data) return res.status(204).send();
@@ -27,17 +27,17 @@ export async function findAssetById(req: Request, res: Response) {
     });
 }
 
-export async function findAllAssets(req: Request, res: Response) {
+async function findAllAssets(req: Request, res: Response) {
   Asset.find({})
     .then((assets) => {
-      return res.status(200).send({ assets });
+      return res.status(200).send(assets);
     })
     .catch((err: Error) => {
       return res.status(500).send({ error: err.message });
     });
 }
 
-export async function findAssets(req: Request, res: Response) {
+async function findAssets(req: Request, res: Response) {
   Asset.find()
     .where(req.params.field, req.params.value)
     .then((assets: Array<Object>) => {
@@ -52,7 +52,7 @@ export async function findAssets(req: Request, res: Response) {
     });
 }
 
-export async function updateAsset(req: Request, res: Response) {
+async function updateAsset(req: Request, res: Response) {
   let finalImage = null;
   let oldAsset = await Asset.findById(req.params.id);
   let newAsset = { ...JSON.parse(req.body.asset) };
@@ -78,7 +78,7 @@ export async function updateAsset(req: Request, res: Response) {
     });
 }
 
-export async function createAsset(req: Request, res: Response) {
+async function createAsset(req: Request, res: Response) {
   if (!req.file) {
     return res.status(400).send("Please input an image");
   }
@@ -99,7 +99,7 @@ export async function createAsset(req: Request, res: Response) {
     });
 }
 
-export async function deleteAsset(req: Request, res: Response) {
+async function deleteAsset(req: Request, res: Response) {
   Asset.findByIdAndDelete(req.params.id)
     .then(async (data: IAsset | null) => {
       if (!data) {
@@ -116,7 +116,7 @@ export async function deleteAsset(req: Request, res: Response) {
     });
 }
 
-export async function getImage(req: Request, res: Response) {
+async function getImage(req: Request, res: Response) {
   Image.findById(req.params.imageId)
     .then(async (data: IImage | null) => {
       if (!data) return res.status(204);
@@ -130,3 +130,13 @@ export async function getImage(req: Request, res: Response) {
       return res.status(500).send({ error: err.message });
     });
 }
+
+export default {
+  findAssetById,
+  findAllAssets,
+  findAssets,
+  updateAsset,
+  createAsset,
+  deleteAsset,
+  getImage,
+};

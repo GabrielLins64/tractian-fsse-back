@@ -1,28 +1,20 @@
 import express from "express";
-import {
-  createCompany,
-  deleteCompany,
-  findAllCompanies,
-  findCompanyById,
-  findCompanies,
-  updateCompany,
-} from "../controllers/company";
+import controller from "../controllers/company";
+import auth from "../middlewares/auth";
 
 const router = express.Router();
 
 router
   .route("/")
-  .get(findAllCompanies)
-  .post(createCompany);
+  .get(controller.findAllCompanies)
+  .post(auth.validateJWT, controller.createCompany);
 
 router
   .route("/:id")
-  .get(findCompanyById)
-  .patch(updateCompany)
-  .delete(deleteCompany);
+  .get(controller.findCompanyById)
+  .patch(auth.validateJWT, controller.updateCompany)
+  .delete(auth.validateJWT, controller.deleteCompany);
 
-router
-  .route("/find/:field/:value")
-  .get(findCompanies);
+router.get("/find/:field/:value", controller.findCompanies);
 
 export { router as companyRouter };

@@ -1,28 +1,20 @@
 import express from "express";
-import {
-  createUnit,
-  deleteUnit,
-  findAllUnits,
-  findUnitById,
-  findUnits,
-  updateUnit,
-} from "../controllers/unit";
+import controller from "../controllers/unit";
+import auth from "../middlewares/auth";
 
 const router = express.Router();
 
 router
   .route("/")
-  .get(findAllUnits)
-  .post(createUnit);
+  .get(controller.findAllUnits)
+  .post(auth.validateJWT, controller.createUnit);
 
 router
   .route("/:id")
-  .get(findUnitById)
-  .patch(updateUnit)
-  .delete(deleteUnit);
+  .get(controller.findUnitById)
+  .patch(auth.validateJWT, controller.updateUnit)
+  .delete(auth.validateJWT, controller.deleteUnit);
 
-router
-  .route("/find/:field/:value")
-  .get(findUnits);
+router.get("/find/:field/:value", controller.findUnits);
 
 export { router as unitRouter };
