@@ -1,20 +1,20 @@
 import { Router } from "express";
 import controller from "../controllers/user";
-import { validateJWT, createJWT } from "../middlewares/auth";
+import auth from "../middlewares/auth";
 
 const router = Router();
 
 router.get("/", controller.findAllUsers);
-router.get("/validate", validateJWT, controller.validateToken);
+router.get("/validate", auth.validateJWT, controller.validateToken);
 router.post("/register", controller.register);
-router.post("/login", controller.login, createJWT);
-router.post("/logout", validateJWT, controller.logout);
+router.post("/login", controller.login, auth.createJWT);
+router.post("/logout", auth.validateJWT, controller.logout);
 
 router
   .route("/:id")
   .get(controller.findUser)
-  .patch(validateJWT, controller.updateUser)
-  .delete(validateJWT, controller.deleteUser);
+  .patch(auth.validateJWT, controller.updateUser)
+  .delete(auth.validateJWT, controller.deleteUser);
 
 router
   .route("/:field/:value")

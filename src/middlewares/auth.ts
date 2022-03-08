@@ -69,4 +69,4 @@ function createJWT(req: Request, res: Response, next: NextFunction) {
   }
 }
 
-export { validateJWT, createJWT };
+export default { validateJWT, createJWT };
